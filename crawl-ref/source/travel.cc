@@ -111,6 +111,8 @@ static string trans_travel_dest;
 // hostile terrain.
 travel_distance_grid_t travel_point_distance;
 
+travel_distance_grid_t stair_travel_point_distance;
+
 // Apply slime wall checks when checking if squares are travelsafe.
 bool g_Slime_Wall_Check = true;
 
@@ -666,9 +668,58 @@ static void _set_target_square(const coord_def &target)
     you.running.pos = target;
 }
 
+static void _populate_grid(travel_distance_grid_t grid, coord_def position) {
+    travel_pathfind tp;
+    tp.set_distance_grid(grid);
+    tp.set_floodseed(position);
+    tp.pathfind(static_cast<run_mode_type>(RMODE_NOT_RUNNING));
+}
+
+static bool _is_upstair(stair_info stair) {
+    dungeon_feature_type type = stair.grid;
+    return (
+        type == DNGN_STONE_STAIRS_UP_I ||
+        type == DNGN_STONE_STAIRS_UP_II ||
+        type == DNGN_STONE_STAIRS_UP_III ||
+        type == DNGN_EXIT_DUNGEON ||
+        type == DNGN_EXIT_ORC ||
+        type == DNGN_EXIT_LAIR ||
+        type == DNGN_EXIT_SLIME ||
+        type == DNGN_EXIT_VAULTS ||
+        type == DNGN_EXIT_ZOT ||
+        type == DNGN_EXIT_TEMPLE ||
+        type == DNGN_EXIT_CRYPT ||
+        type == DNGN_EXIT_SNAKE ||
+        type == DNGN_EXIT_ELF ||
+        type == DNGN_EXIT_TOMB ||
+        type == DNGN_EXIT_SWAMP ||
+        type == DNGN_EXIT_SHOALS ||
+        type == DNGN_EXIT_SPIDER ||
+        type == DNGN_EXIT_DEPTHS);
+}
+
 static void _explore_find_target_square()
 {
     bool runed_door_pause = false;
+
+    travel_cache.get_level_info(level_id::current()).update();
+    LevelInfo *li = travel_cache.find_level_info(level_id::current());
+    vector<stair_info> si = li->get_stairs();
+    stair_info nearest_stair = stair_info();
+    int best_dist = -1;
+
+    _populate_grid(travel_point_distance, you.pos());
+
+    for (stair_info stair : si) {
+        const int new_dist = travel_point_distance[stair.position.x][stair.position.y];
+        if (_is_upstair(stair) && new_dist > 0 &&
+            (best_dist == -1 || new_dist < best_dist)) {
+            best_dist = new_dist;
+            nearest_stair = stair;
+        }
+    }
+    coord_def c = nearest_stair.position.x == -1 ? you.pos() : nearest_stair.position;
+    _populate_grid(stair_travel_point_distance, c);
 
     travel_pathfind tp;
     tp.set_floodseed(you.pos(), true);
@@ -1237,7 +1288,8 @@ coord_def travel_pathfind::pathfind(run_mode_type rmode, bool fallback_explore)
             {
                 if (runmode == RMODE_TRAVEL)
                     return travel_move();
-                else if (!Options.explore_wall_bias)
+                else if (!Options.explore_wall_bias &&
+                        !Options.explore_stair_bias)
                     return explore_target();
                 else
                     found_target = true;
@@ -1432,6 +1484,11 @@ bool travel_pathfind::path_flood(const coord_def &c, const coord_def &dc)
             {
                 // Found explore target!
                 int dist = traveled_distance;
+
+                if (Options.explore_stair_bias > 0)
+                {
+                    dist += Options.explore_stair_bias*stair_travel_point_distance[c.x][c.y];
+                }
 
                 if (need_for_greed && Options.explore_item_greed > 0)
                 {

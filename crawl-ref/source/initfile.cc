@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file
  * @brief Simple reading of an init file and system variables
  * @detailed read_init_file is the main function, but read_option_line does
@@ -251,6 +251,7 @@ const vector<GameOption*> game_options::build_options_list()
         new IntGameOption(SIMPLE_NAME(explore_delay), -1, -1, 2000),
         new IntGameOption(SIMPLE_NAME(explore_item_greed), 10, -1000, 1000),
         new IntGameOption(SIMPLE_NAME(explore_wall_bias), 0, 0, 1000),
+        new IntGameOption(SIMPLE_NAME(explore_stair_bias), 2, 0, 1000),
         new IntGameOption(SIMPLE_NAME(scroll_margin_x), 2, 0),
         new IntGameOption(SIMPLE_NAME(scroll_margin_y), 2, 0),
         new IntGameOption(SIMPLE_NAME(item_stack_summary_minimum), 4),
