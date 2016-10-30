@@ -668,16 +668,18 @@ static void _set_target_square(const coord_def &target)
     you.running.pos = target;
 }
 
-static void _populate_grid(travel_distance_grid_t grid, coord_def position) {
+static void _populate_grid(travel_distance_grid_t grid, coord_def position)
+{
     travel_pathfind tp;
     tp.set_distance_grid(grid);
     tp.set_floodseed(position);
     tp.pathfind(static_cast<run_mode_type>(RMODE_NOT_RUNNING));
 }
 
-static bool _is_upstair(stair_info stair) {
+static bool _is_upstair(stair_info stair)
+{
     dungeon_feature_type type = stair.grid;
-    return (
+    return
         type == DNGN_STONE_STAIRS_UP_I ||
         type == DNGN_STONE_STAIRS_UP_II ||
         type == DNGN_STONE_STAIRS_UP_III ||
@@ -695,7 +697,7 @@ static bool _is_upstair(stair_info stair) {
         type == DNGN_EXIT_SWAMP ||
         type == DNGN_EXIT_SHOALS ||
         type == DNGN_EXIT_SPIDER ||
-        type == DNGN_EXIT_DEPTHS);
+        type == DNGN_EXIT_DEPTHS;
 }
 
 static void _explore_find_target_square()
@@ -710,10 +712,12 @@ static void _explore_find_target_square()
 
     _populate_grid(travel_point_distance, you.pos());
 
-    for (stair_info stair : si) {
+    for (stair_info stair : si)
+    {
         const int new_dist = travel_point_distance[stair.position.x][stair.position.y];
-        if (_is_upstair(stair) && new_dist > 0 &&
-            (best_dist == -1 || new_dist < best_dist)) {
+        if (_is_upstair(stair) && new_dist > 0
+            && (best_dist == -1 || new_dist < best_dist))
+        {
             best_dist = new_dist;
             nearest_stair = stair;
         }

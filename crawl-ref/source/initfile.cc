@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file
  * @brief Simple reading of an init file and system variables
  * @detailed read_init_file is the main function, but read_option_line does
