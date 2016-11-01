@@ -1491,7 +1491,7 @@ bool travel_pathfind::path_flood(const coord_def &c, const coord_def &dc)
 
                 if (Options.explore_stair_bias > 0)
                 {
-                    dist += Options.explore_stair_bias*stair_travel_point_distance[c.x][c.y];
+                    dist += Options.explore_stair_bias*stair_travel_point_distance[c.x][c.y]/10;
                 }
 
                 if (need_for_greed && Options.explore_item_greed > 0)
