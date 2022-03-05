@@ -3931,7 +3931,8 @@ int get_real_mp(bool include_items)
 /// Does the player currently regenerate hp? Used for resting.
 bool player_regenerates_hp()
 {
-    if (you.has_mutation(MUT_NO_REGENERATION) || regeneration_is_inhibited())
+    if ((you.has_mutation(MUT_NO_REGENERATION) && !have_passive(passive_t::jelly_regen)) ||
+        regeneration_is_inhibited())
         return false;
 
     return true;
