@@ -1697,6 +1697,7 @@ static void _tag_construct_you(writer &th)
 
     _marshallFixedBitVector<NUM_SPELLS>(th, you.spell_library);
     _marshallFixedBitVector<NUM_SPELLS>(th, you.hidden_spells);
+    _marshallFixedBitVector<NUM_SPELLS>(th, you.hidden_exegesis_spells);
 
     // how many spells?
     marshallUByte(th, MAX_KNOWN_SPELLS);
@@ -3107,11 +3108,17 @@ static void _tag_read_you(reader &th)
 #if TAG_MAJOR_VERSION == 34
         _fixup_library_spells(you.spell_library);
         _fixup_library_spells(you.hidden_spells);
+        if (th.getMinorVersion() >= TAG_MINOR_EXEGESIS_HIDDEN)
+        {
+            _unmarshallFixedBitVector<NUM_SPELLS>(th, you.hidden_exegesis_spells);
+            _fixup_library_spells(you.hidden_exegesis_spells);
+        }
     }
 #endif
 
     remove_removed_library_spells(you.spell_library);
     remove_removed_library_spells(you.hidden_spells);
+    remove_removed_library_spells(you.hidden_exegesis_spells);
 
     you.spells = unmarshall_player_spells(th);
     you.spell_letter_table = unmarshall_player_spell_letter_table(th);

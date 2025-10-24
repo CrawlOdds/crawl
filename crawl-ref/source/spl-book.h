@@ -52,3 +52,6 @@ spret divine_exegesis(bool fail);
 spret imbue_servitor();
 
 book_type choose_book_type(int item_level);
+
+// Hidden spell set for current action (memorise or exegesis).
+FixedBitVector<NUM_SPELLS> hidden_spell_set();
