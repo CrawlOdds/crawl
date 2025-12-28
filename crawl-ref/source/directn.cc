@@ -2744,7 +2744,7 @@ string get_cell_mouseover_tag(const coord_def &gc)
         desc = unseen_desc;
     else if (!you.see_cell(gc))
     {
-        if (env.map_knowledge(gc).seen())
+        if (env.map_knowledge(gc).known())
         {
             desc = "[" + feature_description_at(gc, false, DESC_PLAIN)
                        + "]";
