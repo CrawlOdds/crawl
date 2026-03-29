@@ -1373,6 +1373,32 @@ const coord_def travel_pathfind::explore_target() const
     return coord_def(0, 0);
 }
 
+void travel_pathfind::populate_stair_distances()
+{
+    LevelInfo &li = travel_cache.get_level_info(level_id::current());
+    for (int x = 0; x < GXM; ++x)
+        for (int y = 0; y < GYM; ++y)
+            stair_distances[x][y] = INFINITE_DIST;
+    for (auto s : li.get_stairs())
+    {
+        if (feat_stair_direction(s.grid) != CMD_GO_UPSTAIRS)
+            continue;
+        fill_travel_point_distance(s.position);
+        for (int x = 0; x < GXM; ++x)
+        {
+            for (int y = 0; y < GYM; ++y)
+            {
+                int new_distance = travel_point_distance[x][y];
+                if (new_distance == 0 && (x != s.position.x || y != s.position.y))
+                    new_distance = INFINITE_DIST;
+
+                if (new_distance < stair_distances[x][y])
+                    stair_distances[x][y] = new_distance;
+            }
+        }
+    }
+}
+
 // The travel algorithm is based on the NetHack travel code written by Warwick
 // Allison - used with his permission.
 coord_def travel_pathfind::pathfind(run_mode_type rmode, bool fallback_explore)
@@ -1397,6 +1423,11 @@ coord_def travel_pathfind::pathfind(run_mode_type rmode, bool fallback_explore)
         {
             autopickup = can_autopickup();
             need_for_greed = autopickup;
+        }
+        if (runmode == RMODE_EXPLORE || runmode == RMODE_EXPLORE_GREEDY)
+        {
+            // Need distances from stairs to implement stair bias.
+            populate_stair_distances();
         }
     }
 
@@ -1496,7 +1527,8 @@ coord_def travel_pathfind::pathfind(run_mode_type rmode, bool fallback_explore)
                 if (runmode == RMODE_TRAVEL)
                     return next_travel_move;
                 else if (runmode == RMODE_CONNECTIVITY
-                         || !Options.explore_wall_bias)
+                         || (!Options.explore_wall_bias
+                             && !Options.explore_stair_bias))
                 {
                     return explore_target();
                 }
@@ -1505,7 +1537,7 @@ coord_def travel_pathfind::pathfind(run_mode_type rmode, bool fallback_explore)
             }
         }
 
-        // Handle exploration with wall bias
+        // Handle exploration with wall/stair bias
         if (next_iter_points == 0 && found_target)
             return explore_target();
 
@@ -1646,6 +1678,10 @@ void travel_pathfind::check_square_greed(const coord_def &c)
         if (Options.explore_wall_bias > 0)
             dist += Options.explore_wall_bias * 3;
 
+        // Penalize distance to favour exploring near stairs
+        if (Options.explore_stair_bias)
+            dist += Options.explore_stair_bias * stair_distances[c.x][c.y];
+
         greedy_dist = dist;
         greedy_place = c;
     }
@@ -1728,6 +1764,10 @@ bool travel_pathfind::path_flood(const coord_def &c, const coord_def &dc)
                         dist -= Options.explore_wall_bias;
                     }
                 }
+
+                // Penalize distance to favour exploring near stairs
+                if (Options.explore_stair_bias)
+                    dist += Options.explore_stair_bias * stair_distances[c.x][c.y];
 
                 // Replace old target if nearer (or less penalized)
                 // don't let dist get < 0

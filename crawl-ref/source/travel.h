@@ -496,6 +496,7 @@ protected:
     bool square_slows_movement(const coord_def &c);
     void check_square_greed(const coord_def &c);
     void good_square(const coord_def &c);
+    void populate_stair_distances();
 
 protected:
     static const int UNFOUND_DIST  = -30000;
@@ -566,6 +567,9 @@ protected:
 
     // Which index of the circumference array are we currently looking at?
     int circ_index;
+
+    // The distances of points on the level from the nearest upstair.
+    int stair_distances[GXM][GYM];
 
     // Used by all instances of travel_pathfind. Happily, we do not need to be
     // re-entrant or thread-safe.
