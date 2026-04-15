@@ -375,13 +375,6 @@ bool in_known_map_bounds(const coord_def& p)
         && p.x <= b.second.x && p.y <= b.second.y;
 }
 
-static colour_t _feat_default_map_colour(dungeon_feature_type feat)
-{
-    if (player_in_branch(BRANCH_SEWER) && feat_is_water(feat))
-        return feat == DNGN_DEEP_WATER ? GREEN : LIGHTGREEN;
-    return BLACK;
-}
-
 // We logically associate a difficulty parameter with each tile on each level,
 // to make deterministic passive mapping work. It is deterministic so that the
 // reveal order doesn't, for example, change on reload.
@@ -521,7 +514,7 @@ bool magic_mapping(int map_radius, int proportion, bool suppress_msg,
 
         if (open)
         {
-            knowledge.set_feature(feat, _feat_default_map_colour(feat));
+            knowledge.set_feature(feat, env.grid_colours(pos));
             if (is_notable_terrain(feat))
                 seen_notable_thing(feat, pos);
 
