@@ -77,7 +77,7 @@ int melee_confuse_chance(int HD)
 int aux_to_hit()
 {
     int to_hit = 1300
-                + you.dex() * 75
+                + you.dex() * 76
                 + you.skill(SK_FIGHTING, 30);
     to_hit /= 100;
 
