@@ -4596,6 +4596,24 @@ vector<monster *> find_maxwells_possibles()
     return result;
 }
 
+// MCC delay is `base + U[0,range) / denom`
+static const int MCC_BASE = 30;
+static const int MCC_DENOM = 200;
+
+static int _maxwells_coupling_charge_range(int pow)
+{
+    return (200 - pow) * 40;
+}
+
+string maxwells_coupling_charge_description(int pow)
+{
+    const int min_turns = div_round_up(MCC_BASE, BASELINE_DELAY);
+    const int range = _maxwells_coupling_charge_range(pow);
+    const int max_aut = MCC_BASE + div_round_up(max(range - 1, 0), MCC_DENOM);
+    const int max_turns = div_round_up(max_aut, BASELINE_DELAY);
+    return make_stringf("%d-%d", min_turns, max_turns);
+}
+
 spret cast_maxwells_coupling(int pow, bool fail, bool tracer)
 {
     monster* const mon = _find_maxwells_target();
@@ -4616,7 +4634,9 @@ spret cast_maxwells_coupling(int pow, bool fail, bool tracer)
     mpr("You begin accumulating electric charge.");
 
     you.props[COUPLING_TIME_KEY] =
-       you.elapsed_time + (30 + div_rand_round(random2((200 - pow) * 40), 200));
+       you.elapsed_time + MCC_BASE
+       + div_rand_round(random2(_maxwells_coupling_charge_range(pow)),
+                        MCC_DENOM);
 
     start_channelling_spell(SPELL_MAXWELLS_COUPLING, "continue charging", false);
 
