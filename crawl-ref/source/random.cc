@@ -401,8 +401,6 @@ int biased_random2(int max, int n)
  * @param trial_prob The numerator of the probability of success of each trial.
  *                   If greater than scale, the probability is 1.0.
  * @param scale The denominator of trial_prob, default 100.
- * @param random Whether to randomize round the return value or just round,
- *               default true.
  * @return The mean number of successes, range [0, n_trials]
  */
 double binomial_mean(unsigned n_trials, unsigned trial_prob,
