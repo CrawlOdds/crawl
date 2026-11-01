@@ -4594,7 +4594,6 @@ static string _player_spell_stats(const spell_type spell)
 
     const pair<string, string> effect = effect_description(spell);
     const string damage_string = spell_damage_string(spell);
-    const string max_dam_string = spell_max_damage_string(spell);
     const int acc = spell_acc(spell);
     const string defence_string = spell_defence_string(spell);
     const string resist_string = spell_resist_string(spell);
