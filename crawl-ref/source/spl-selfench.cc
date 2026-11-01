@@ -105,13 +105,15 @@ static int _revivification_loss(int pow)
     return (REVIV_BASE + binomial(REVIV_ROLLS, REVIV_CHANCE, pow)) * you.hp_max / 100;
 }
 
-string revivification_loss_description(int pow)
+string revivification_loss_description(int pow, bool terse)
 {
     const int max_loss = REVIV_BASE + REVIV_ROLLS;
     const int min_loss = pow <= REVIV_CHANCE ? max_loss : REVIV_BASE;
     const double avg_loss = REVIV_BASE
                             + binomial_mean(REVIV_ROLLS, REVIV_CHANCE, pow);
-    return make_stringf("%d-%d%% (avg ~%.1f%%)", min_loss, max_loss, avg_loss);
+    if (terse)
+        return make_stringf("~%.1f%%", avg_loss);
+    return make_stringf("%d-%d%%, avg ~%.1f%%", min_loss, max_loss, avg_loss);
 }
 
 spret cast_revivification(int pow, bool fail)

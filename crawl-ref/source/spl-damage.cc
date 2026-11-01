@@ -4611,6 +4611,8 @@ string maxwells_coupling_charge_description(int pow)
     const int range = _maxwells_coupling_charge_range(pow);
     const int max_aut = MCC_BASE + div_round_up(max(range - 1, 0), MCC_DENOM);
     const int max_turns = div_round_up(max_aut, BASELINE_DELAY);
+    if (min_turns == max_turns)
+        return make_stringf("%d", min_turns);
     return make_stringf("%d-%d", min_turns, max_turns);
 }
 

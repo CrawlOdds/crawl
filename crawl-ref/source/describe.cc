@@ -4609,6 +4609,10 @@ static string _player_spell_stats(const spell_type spell)
     {
         description += make_stringf("\n%*s: %s", padding, effect.first.c_str(),
                                     effect.second.c_str());
+
+        const string max_effect = spell_max_effect_string(spell);
+        if (!max_effect.empty())
+            description += " (max power: " + max_effect + ")";
     }
     if (damage_string != "")
     {
